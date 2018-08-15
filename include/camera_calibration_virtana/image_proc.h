@@ -13,12 +13,16 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/CameraInfo.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/core.hpp>
 
 //For transform support
+#include <tf/tf.h>
+#include <tf/transform_listener.h>
+
 
 namespace camera_calibration_virtana{
   class ImageProcessor{
@@ -29,16 +33,25 @@ namespace camera_calibration_virtana{
 
       ~ImageProcessor();
 
+      void SetCamInfo(const sensor_msgs::CameraInfoConstPtr& info);
+
       void ImageCB(const sensor_msgs::ImageConstPtr& msg);
 
       void InitialiseSubscribers();
 
     private:
       ros::NodeHandle private_nh_;
+      ros::Subscriber cam_info_sub_;
       image_transport::ImageTransport it_;
       image_transport::Subscriber image_sub_;
-//      image_transport::Publisher image_pub_;
+      //image_transport::Publisher image_pub_;
       std::string OPENCV_WINDOW;
+
+      sensor_msgs::CameraInfo camera_info_;
+
+      tf::TransformListener listener_;
+      tf::StampedTransform cam_to_calibration_;  // stores offset between gps and body_link
+
   };
 };
 
