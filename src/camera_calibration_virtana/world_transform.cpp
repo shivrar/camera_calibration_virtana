@@ -5,37 +5,12 @@ namespace camera_calibration_virtana{
     {
       initialisePublishers();
       initialiseSubscribers();
-      InitialiseTimers();
     };
 
   WorldTransform::~WorldTransform()
     {
 
     };
-
-  void WorldTransform::InitialiseTimers()
-  {
-    pub_period_ = ros::Duration(0.025);
-    tf_timer_ = private_nh_.createTimer(pub_period_, boost::bind(&WorldTransform::UpdateCalibrationTF, this, _1));
-  };
-
-  void UpdateCalibrationTF(const ros::TimerEvent&)
-  {
-
-    for(int i = 0; i < 16; i++)
-    {
-      tf::Quaternion qt;
-      tf::Vector3 vt;
-
-      qt.setRPY (0,0,0);
-//      vt = tf::Vector3();
-
-//      calibration_tf_broadcaster_;
-    }
-
-
-
-  };
 
   void WorldTransform::initialiseSubscribers()
     {

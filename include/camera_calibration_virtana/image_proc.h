@@ -22,6 +22,7 @@
 //For transform support
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
 
 
 namespace camera_calibration_virtana{
@@ -50,7 +51,11 @@ namespace camera_calibration_virtana{
       sensor_msgs::CameraInfo camera_info_;
 
       tf::TransformListener listener_;
-      tf::StampedTransform cam_to_calibration_;  // stores offset between gps and body_link
+      tf::StampedTransform cam_to_calibration_;
+      tf::TransformBroadcaster transform_broadcaster_;
+
+
+      float cube_dimensions_[3]; // x, y ,z format
 
   };
 };

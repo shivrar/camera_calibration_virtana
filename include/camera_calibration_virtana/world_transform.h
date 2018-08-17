@@ -31,10 +31,6 @@ namespace camera_calibration_virtana{
 
         void initialisePublishers();
 
-        void InitialiseTimers();
-
-        void UpdateCalibrationTF(const ros::TimerEvent&);
-
         void JointCallback(const camera_calibration_virtana::calibrationConfig &config, uint32_t level);
 
         void UpdateTfTree(const gazebo_msgs::LinkStatesConstPtr& joints_msg);
@@ -47,9 +43,6 @@ namespace camera_calibration_virtana{
         ros::Timer tf_timer_;
 
         tf::TransformBroadcaster transform_broadcaster_;
-        tf::TransformBroadcaster calibration_tf_broadcaster_;
-
-        float[3] cube_dimensions_;
 
   };
 };

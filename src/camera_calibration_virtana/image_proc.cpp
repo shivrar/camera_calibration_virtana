@@ -4,6 +4,9 @@ namespace camera_calibration_virtana{
 
   ImageProcessor::ImageProcessor():private_nh_("~"), it_(ros::NodeHandle())
   {
+    cube_dimensions_[0] = 1.0;
+    cube_dimensions_[1] = 1.0;
+    cube_dimensions_[2] = 1.0;
     OPENCV_WINDOW = "Image Window";
     InitialiseSubscribers();
   };
@@ -31,6 +34,15 @@ namespace camera_calibration_virtana{
     cv_bridge::CvImagePtr cv_ptr;
     std::vector<cv::Point2f> corners;
 
+    if((ros::Time::now().toSec() - msg->header.stamp.toSec()) > 1.0)
+    {
+      ROS_WARN("Time mismatch. Message time: %f, ROS time: %f Discarding current msg",
+                msg->header.stamp.toSec(), ros::Time::now().toSec());
+      return;
+    }
+
+    listener_.lookupTransform("camera_link", "calibration_target_link", msg->header.stamp, cam_to_calibration_);
+
     try
     {
       cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
@@ -41,6 +53,8 @@ namespace camera_calibration_virtana{
       return;
     }
 
+
+
     bool patternfound = cv::findChessboardCorners(cv_ptr->image, cvSize(4,4), corners, cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_FAST_CHECK);
 
     if(patternfound)
@@ -48,10 +62,38 @@ namespace camera_calibration_virtana{
 
       ROS_INFO("Found board");
       ROS_INFO("Number of corners found: , %lu", corners.size());
-      for(std::vector<cv::Point2f>::iterator corners_iter = corners.begin(); corners_iter != corners.end(); corners_iter++)
+
+      /*for(std::vector<cv::Point2f>::iterator corners_iter = corners.begin(); corners_iter != corners.end(); corners_iter++)
       {
 
          ROS_INFO("Points on Image <x,y>: <%f,%f> \n", corners_iter->x, corners_iter->y);
+
+
+      }*/
+
+
+
+      for(int i = 0; i < corners.size(); i++)
+      {
+        //Generate the XYZ of the matched corner based on the transform from cam_t_calib and the positions of the
+        //points on the face.
+
+        float x,y,z;
+        x = cube_dimensions_[0]/2.0;
+        y = -cube_dimensions_[1]*(0.5 - 0.2 - (i%4)*(0.2));
+        z = cube_dimensions_[2]*(0.5 - 0.2 - (i/4)*(0.2));
+
+//        tf::Vector3 trans(x,y,z);
+
+        tf::Vector3 trans = cam_to_calibration_*tf::Vector3(x,y,z);
+
+        ROS_INFO("[%f,%f,%f,1]'", trans.getX(), trans.getY(), trans.getZ());
+
+//        float pixel_x = (camera_info_.P[0]*trans.getX() + camera_info_.P[2]*trans.getZ() + camera_info_.P[3])/trans.getZ();
+//        float pixel_y = (camera_info_.P[5]*trans.getY() + camera_info_.P[6]*trans.getZ() + camera_info_.P[4])/trans.getZ();
+//
+//        ROS_INFO("Expected point (x:%f,y:%f), Actual point (x:%f,y:%f)", pixel_x, pixel_y, corners[i].x, corners[i].y);
+
 
 
       }

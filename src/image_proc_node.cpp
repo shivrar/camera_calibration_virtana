@@ -8,5 +8,6 @@ int main(int argc, char** argv) {
 
   ROS_INFO("Spinning node");
   ros::spin();
+
   return 0;
 }
