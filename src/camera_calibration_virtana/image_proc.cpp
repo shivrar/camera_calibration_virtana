@@ -43,6 +43,9 @@ namespace camera_calibration_virtana{
 
     listener_.lookupTransform("camera_link", "calibration_target_link", msg->header.stamp, cam_to_calibration_);
 
+    listener_.lookupTransform("world", "camera_link", msg->header.stamp, world_to_cam_);
+
+
     try
     {
       cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
@@ -83,27 +86,30 @@ namespace camera_calibration_virtana{
         y = -cube_dimensions_[1]*(0.5 - 0.2 - (i%4)*(0.2));
         z = cube_dimensions_[2]*(0.5 - 0.2 - (i/4)*(0.2));
 
-//        tf::Vector3 trans(x,y,z);
+        //TODO: For each match write the corresponding points (x,y) to transform(x,y,z) and repeat until the end of the calibration
+
+        //        tf::Vector3 trans(x,y,z);
 
         tf::Vector3 trans = cam_to_calibration_*tf::Vector3(x,y,z);
 
+
         ROS_INFO("[%f,%f,%f,1]'", trans.getX(), trans.getY(), trans.getZ());
 
-//        float pixel_x = (camera_info_.P[0]*trans.getX() + camera_info_.P[2]*trans.getZ() + camera_info_.P[3])/trans.getZ();
-//        float pixel_y = (camera_info_.P[5]*trans.getY() + camera_info_.P[6]*trans.getZ() + camera_info_.P[4])/trans.getZ();
-//
-//        ROS_INFO("Expected point (x:%f,y:%f), Actual point (x:%f,y:%f)", pixel_x, pixel_y, corners[i].x, corners[i].y);
+        //        float pixel_x = ((camera_info_.P[0]/10.0)*trans.getX() + (camera_info_.P[2]/10.0)*trans.getZ() + camera_info_.P[3])/trans.getZ();
+        //        float pixel_y = ((camera_info_.P[5]/10.0)*trans.getY() + (camera_info_.P[6]/10.0)*trans.getZ() + camera_info_.P[7])/trans.getZ();
+
+        //        ROS_INFO("Expected point (x:%f,y:%f), Actual point (x:%f,y:%f)", pixel_x, pixel_y, corners[i].x, corners[i].y);
 
 
 
       }
 
-      cv::drawChessboardCorners(cv_ptr->image, cvSize(4,4), cv::Mat(corners), patternfound);
+        //      cv::drawChessboardCorners(cv_ptr->image, cvSize(4,4), cv::Mat(corners), patternfound);
 
     }
 
-    cv::imshow(OPENCV_WINDOW, cv_ptr->image);
-    cv::waitKey(3);
+      //    cv::imshow(OPENCV_WINDOW, cv_ptr->image);
+      //    cv::waitKey(3);
   };
 
 }
