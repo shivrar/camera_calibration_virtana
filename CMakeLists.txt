@@ -51,6 +51,7 @@ add_library(camera_calibration_virtana
 target_link_libraries(nlo_eg
    ${catkin_LIBRARIES}
    ${CERES_LIBRARIES}
+   ${OpenCV_LIBRARIES}
 )
 
 target_link_libraries(camera_calibration_virtana

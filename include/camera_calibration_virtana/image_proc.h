@@ -25,22 +25,11 @@
 #include <tf/transform_broadcaster.h>
 
 
-#include "ceres/ceres.h"
-
 
 namespace camera_calibration_virtana{
   class ImageProcessor{
 
     public:
-
-      struct CostFunctor
-      {
-        template <typename T> bool operator()(const T* const x, T* residual) const
-        {
-          residual[0] = 10.0 - x[0];
-          return true;
-        }
-      };
 
       ImageProcessor();
 
@@ -67,7 +56,8 @@ namespace camera_calibration_virtana{
       tf::StampedTransform world_to_cam_;
       tf::TransformBroadcaster transform_broadcaster_;
 
-      cv::FileStorage fs("test.yml", cv::FileStorage::WRITE);
+      std::unique_ptr<cv::FileStorage> fs_;
+
 
 
       float cube_dimensions_[3]; // x, y ,z format

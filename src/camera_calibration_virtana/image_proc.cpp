@@ -8,12 +8,17 @@ namespace camera_calibration_virtana{
     cube_dimensions_[1] = 1.0;
     cube_dimensions_[2] = 1.0;
     OPENCV_WINDOW = "Image Window";
+
+    fs_.reset(new cv::FileStorage ("src/camera_calibration_virtana/calibration_points.xml", cv::FileStorage::WRITE));
+
     InitialiseSubscribers();
+    *fs_ << "points" << "[";
   };
 
   ImageProcessor::~ImageProcessor()
   {
-
+    *fs_ << "]";
+    fs_->release();
   };
 
   void ImageProcessor::SetCamInfo(const sensor_msgs::CameraInfoConstPtr& info)
@@ -65,7 +70,6 @@ namespace camera_calibration_virtana{
 
       ROS_INFO("Found board");
       ROS_INFO("Number of corners found: , %lu", corners.size());
-
       /*for(std::vector<cv::Point2f>::iterator corners_iter = corners.begin(); corners_iter != corners.end(); corners_iter++)
       {
 
@@ -73,8 +77,11 @@ namespace camera_calibration_virtana{
 
 
       }*/
+      *fs_ << "{:";
 
+//      *fs_ <<"time" << msg->header.stamp.toSec();
 
+      *fs_ <<"corners" << "[";
 
       for(int i = 0; i < corners.size(); i++)
       {
@@ -100,9 +107,17 @@ namespace camera_calibration_virtana{
 
         //        ROS_INFO("Expected point (x:%f,y:%f), Actual point (x:%f,y:%f)", pixel_x, pixel_y, corners[i].x, corners[i].y);
 
-
+        *fs_ << "{:";
+        *fs_ << "pixel"<< "{:" << "x" << (int)corners[i].x << "y" << (int)corners[i].y << "}";
+        *fs_ << "transform" <<"{:" << "X" << (float)trans.getX() << "Y" << (float)trans.getY() << "Z"<< (float)trans.getZ()<< "}";
+        *fs_ << "}";
 
       }
+
+      *fs_ << "]";
+
+      *fs_ << "}";
+
 
         //      cv::drawChessboardCorners(cv_ptr->image, cvSize(4,4), cv::Mat(corners), patternfound);
 
