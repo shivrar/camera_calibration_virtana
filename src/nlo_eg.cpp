@@ -36,6 +36,22 @@ struct CostFunctor {
   }
 };
 
+struct ReProjectionError{
+  ReProjectionError(double observed_x, double observed_y): observed_x(observed_x),
+  observed_y(observed_y)
+  {
+
+  }
+
+  template <typename T> bool operator()(const T* const camera, const T* const point, T* residuals)
+  const {
+
+  }
+
+  double observed_x;
+  double observed_y;
+};
+
 int main(int argc, char** argv)
 {
   google::InitGoogleLogging(argv[0]);
