@@ -53,7 +53,7 @@ struct ReProjectionError {
   template <typename T>
   bool operator()(const T* const camera, T* residuals)
   const {
-
+//    TODO: Insert the proper function using the camera parameters of size 8
     return true;
   }
   // Factory to hide the construction of the CostFunction object from
@@ -69,8 +69,7 @@ struct ReProjectionError {
   double point_[3];
 };
 int main(int argc, char** argv) {
-  ceres::Problem problem;
-
+  //Load data
   cv::FileStorage fs2("src/camera_calibration_virtana/calibration_points2.xml", cv::FileStorage::READ);
 
   cv::FileNode points = fs2["points"];
@@ -90,25 +89,38 @@ int main(int argc, char** argv) {
       xyz.push_back(temp1);
 
       std::vector<float> temp2;
-      temp1.push_back((*fi)["corners"][i]["pixel"]["x"]);
-      temp1.push_back((*fi)["corners"][i]["pixel"]["y"]);
+      temp2.push_back((*fi)["corners"][i]["pixel"]["x"]);
+      temp2.push_back((*fi)["corners"][i]["pixel"]["y"]);
 
       pixels.push_back(temp2);
     }
   }
+  //Start to build the problem
 
-//  for (int i = 0; i < 10; ++i) {
-//    // Each Residual block takes a point and a camera as input and outputs a 2
-//    // dimensional residual. Internally, the cost function stores the observed
-//    // image location and compares the reprojection against the observation.
-////    ceres::CostFunction* cost_function =
-////        ReProjectionError::Create(observations[2 * i + 0],
-////                                         observations[2 * i + 1]);
-////    problem.AddResidualBlock(cost_function,
-////                             NULL /* squared loss */,
-////                             bal_problem.mutable_camera_for_observation(i),
-////                             bal_problem.mutable_point_for_observation(i));
-//  }
+  ceres::Problem problem;
+
+  for (int i = 0; i < pixels.size(); ++i) {
+    // Each Residual block takes a point and a camera as input and outputs a 2
+    // dimensional residual. Internally, the cost function stores the observed
+    // image location and compares the reprojection against the observation.
+
+    double point[3] = {(xyz[i])[0],(xyz[i])[1],(xyz[i])[2]};
+
+    point[0] = (xyz[i])[0];
+    point[1] = (xyz[i])[1];
+    point[2] = (xyz[i])[2];
+
+    double current_x = (pixels[i])[0];
+    double current_y = (pixels[i])[1];
+
+
+
+    ceres::CostFunction* cost_function = ReProjectionError::Create(current_x, current_y, point);
+//    problem.AddResidualBlock(cost_function,
+//                             NULL /* squared loss */,
+//                             bal_problem.mutable_camera_for_observation(i),
+//                             bal_problem.mutable_point_for_observation(i));
+  }
 //  // Make Ceres automatically detect the bundle structure. Note that the
 //  // standard solver, SPARSE_NORMAL_CHOLESKY, also works fine but it is slower
 //  // for standard bundle adjustment problems.
