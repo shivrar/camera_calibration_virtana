@@ -53,6 +53,10 @@
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
         <frameName>camera_link</frameName>
         <hackBaseline>0.07</hackBaseline>
+        <CxPrime>640</CxPrime>
+        <Cx>640</Cx>
+        <Cy>640</Cy>
+        <focalLength>762</focalLength>
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>
         <distortionK3>0.0</distortionK3>

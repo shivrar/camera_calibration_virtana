@@ -9,7 +9,7 @@ namespace camera_calibration_virtana{
     cube_dimensions_[2] = 1.0;
     OPENCV_WINDOW = "Image Window";
 
-    fs_.reset(new cv::FileStorage ("src/camera_calibration_virtana/calibration_points2.xml", cv::FileStorage::WRITE));
+    fs_.reset(new cv::FileStorage ("src/camera_calibration_virtana/calibration_points3.xml", cv::FileStorage::WRITE));
 
     InitialiseSubscribers();
     *fs_ << "points" << "[";
