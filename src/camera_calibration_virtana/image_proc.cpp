@@ -9,7 +9,7 @@ namespace camera_calibration_virtana{
     cube_dimensions_[2] = 1.0;
     OPENCV_WINDOW = "Image Window";
 
-    fs_.reset(new cv::FileStorage ("src/camera_calibration_virtana/calibration_points3.xml", cv::FileStorage::WRITE));
+    fs_.reset(new cv::FileStorage ("src/camera_calibration_virtana/calibration_points4.xml", cv::FileStorage::WRITE));
 
     InitialiseSubscribers();
     *fs_ << "points" << "[";
@@ -46,9 +46,7 @@ namespace camera_calibration_virtana{
       return;
     }
 
-    listener_.lookupTransform("camera_link", "calibration_target_link", msg->header.stamp, cam_to_calibration_);
-
-    listener_.lookupTransform("world", "camera_link", msg->header.stamp, world_to_cam_);
+    listener_.lookupTransform("image_link", "calibration_target_link", msg->header.stamp, cam_to_calibration_);
 
 
     try
@@ -93,9 +91,10 @@ namespace camera_calibration_virtana{
         y = -cube_dimensions_[1]*(0.5 - 0.2 - (i%4)*(0.2));
         z = cube_dimensions_[2]*(0.5 - 0.2 - (i/4)*(0.2));
 
-        //TODO: For each match write the corresponding points (x,y) to transform(x,y,z) and repeat until the end of the calibration
+        //TODO: For each match write the corresponding points (x,y) to transform(x,y,z) and repeat until the end of the calibration. NOTE THE TRANSFORM MUST BE IN THE IMAGE/CAMERA frame
 
-        //        tf::Vector3 trans(x,y,z);
+        tf::Transform image_T_cam;
+
 
         tf::Vector3 trans = cam_to_calibration_*tf::Vector3(x,y,z);
 

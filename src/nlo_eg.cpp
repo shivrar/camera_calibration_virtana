@@ -65,9 +65,9 @@ struct ReProjectionError {
     T projected_y = yp + yp*(camera[6]*(xp*xp + yp*yp) + camera[7]*(xp*xp + yp*yp)*(xp*xp + yp*yp));
 
 
-    residuals[0] = (T)observed_x_ - xp;
+    residuals[0] = (T)observed_x_ - projected_x;
 
-    residuals[1] = (T)observed_y_ - yp;
+    residuals[1] = (T)observed_y_ - projected_y;
 
     return true;
   }
@@ -85,7 +85,7 @@ struct ReProjectionError {
 };
 int main(int argc, char** argv) {
   //Load data
-  cv::FileStorage fs2("src/camera_calibration_virtana/calibration_points2.xml", cv::FileStorage::READ);
+  cv::FileStorage fs2("src/camera_calibration_virtana/calibration_points4.xml", cv::FileStorage::READ);
 
   cv::FileNode points = fs2["points"];
 
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
 
   //Start to build the problem
 
-  double camera[] = {-762.0, 640.0, 0.0, -762.0, 640.0, 0.0, 0.0, 0.0};
+  double camera[] = {640.0, 0, 0.0, 640.0, 0.0, 0.0, 0.002, 0.002};
   double fx_1 = camera[0], cx_1 = camera[1], tx_1 = camera[2], fy_1 = camera[3], cy_1 = camera[4], ty_1 = camera[5], k1 = camera[6], k2 = camera[7];
 
   ceres::Problem problem;
@@ -150,11 +150,9 @@ int main(int argc, char** argv) {
   // standard solver, SPARSE_NORMAL_CHOLESKY, also works fine but it is slower
   // for standard bundle adjustment problems.
   ceres::Solver::Options options;
-  options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
+  options.linear_solver_type = ceres::DENSE_SCHUR;
   options.minimizer_progress_to_stdout = true;
-  options.max_num_iterations = 150;
-//  options.gradient_tolerance = 1e-16;
-//  options.function_tolerance = 1e-16;
+  options.max_num_iterations = 400;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
   std::cout << summary.FullReport() << "\n";
@@ -180,7 +178,9 @@ int main(int argc, char** argv) {
     double projected_x = xp + xp*(camera[6]*(xp*xp + yp*yp) + camera[7]*(xp*xp + yp*yp)*(xp*xp + yp*yp));
     double projected_y = yp + yp*(camera[6]*(xp*xp + yp*yp) + camera[7]*(xp*xp + yp*yp)*(xp*xp + yp*yp));
 
-//    ROS_INFO("Pixel Difference: x: %f, y: %f", projected_x - (pixels[i])[0], projected_y - (pixels[i])[1]);
+//    ROS_INFO("x: Projected = %f Actual = %f, y: Projected = %f, Actual = %f\n", projected_x,(pixels[i])[0], projected_y,(pixels[i])[1]);
+
+
 
     acc_x+= std::fabs(projected_x - (pixels[i])[0]);
     acc_y+= std::fabs(projected_y - (pixels[i])[1]);
