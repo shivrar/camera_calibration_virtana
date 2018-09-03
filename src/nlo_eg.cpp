@@ -58,8 +58,8 @@ struct ReProjectionError {
 
     //camera[0,1,2] = fx, cx, Tx, camera[3,4,5] = fy, cy, Ty camera[6,7] = k1, k2
 
-    T xp = (camera[0]*(T)point_[0] + camera[1]*(T)point_[2])/(T)point_[2];
-    T yp = (camera[3]*(T)point_[1] + camera[4]*(T)point_[2])/(T)point_[2];
+    T xp = (camera[0]*(T)point_[0] + camera[1]*(T)point_[2] + camera[2])/(T)point_[2];
+    T yp = (camera[3]*(T)point_[1] + camera[4]*(T)point_[2] + camera[5])/(T)point_[2];
 
     T projected_x = xp + xp*(camera[6]*(xp*xp + yp*yp) + camera[7]*(xp*xp + yp*yp)*(xp*xp + yp*yp));
     T projected_y = yp + yp*(camera[6]*(xp*xp + yp*yp) + camera[7]*(xp*xp + yp*yp)*(xp*xp + yp*yp));
@@ -93,6 +93,8 @@ int main(int argc, char** argv) {
 
   std::vector<std::vector<float>> pixels;
 
+  ROS_INFO("Points size: %lu", points.size());
+
   for(cv::FileNodeIterator fi = points.begin(); fi != points.end(); fi++)
   {
     for(int i = 0; i < ((*fi)["corners"]).size(); i++)
@@ -111,19 +113,24 @@ int main(int argc, char** argv) {
     }
   }
 
-//Initial fx: 0.000000 --> Final fx: -9.594505
-//Initial cx: 0.000000 --> Final cx: 796.035188
-//Initial Tx: 0.000000 --> Final Tx: 0.000000
-//Initial fy: 0.000000 --> Final fy: -74.314581
-//Initial cy: 0.000000 --> Final cy: 480.270974
-//Initial Ty: 0.000000 --> Final Ty: 0.000000
-//Initial k1: 0.000000 --> Final k1: -0.000000
-//Initial k2: 0.000000 --> Final k2: -0.000000
-
+//  ROS_INFO("Points size: %lu , %lu", xyz.size(), pixels.size());
 
   //Start to build the problem
 
-  double camera[] = {640.0, 0, 0.0, 640.0, 0.0, 0.0, 0.002, 0.002};
+//Initial fx: 0.000000 --> Final fx: 762.769956
+//Initial cx: 0.000000 --> Final cx: 639.407253
+//Initial Tx: 0.000000 --> Final Tx: 0.007769
+//Initial fy: 0.000000 --> Final fy: 763.024999
+//Initial cy: 0.000000 --> Final cy: 639.379343
+//Initial Ty: 0.000000 --> Final Ty: 0.034106
+//Initial k1: 0.000000 --> Final k1: 0.000000
+//Initial k2: 0.000000 --> Final k2: -0.000000
+
+
+//  double camera[] = {762.769956, 639.407253, 0.007769, 763.024999, 639.379343, 0.034106, 0.00, 0.00};
+  double camera[] = {900, 500, 0.00, 900, 500, 0.0, 0.00, 0.00};
+
+
   double fx_1 = camera[0], cx_1 = camera[1], tx_1 = camera[2], fy_1 = camera[3], cy_1 = camera[4], ty_1 = camera[5], k1 = camera[6], k2 = camera[7];
 
   ceres::Problem problem;
@@ -138,8 +145,6 @@ int main(int argc, char** argv) {
 
     double current_x = (pixels[i])[0];
     double current_y = (pixels[i])[1];
-
-
 
     ceres::CostFunction* cost_function = ReProjectionError::Create(current_x, current_y, point);
 
@@ -178,10 +183,11 @@ int main(int argc, char** argv) {
     double projected_x = xp + xp*(camera[6]*(xp*xp + yp*yp) + camera[7]*(xp*xp + yp*yp)*(xp*xp + yp*yp));
     double projected_y = yp + yp*(camera[6]*(xp*xp + yp*yp) + camera[7]*(xp*xp + yp*yp)*(xp*xp + yp*yp));
 
-//    ROS_INFO("x: Projected = %f Actual = %f, y: Projected = %f, Actual = %f\n", projected_x,(pixels[i])[0], projected_y,(pixels[i])[1]);
-
-
-
+    if((projected_x - (pixels[i])[0] > 8.0) || (projected_y - (pixels[i])[1] > 8.0))
+    {
+      ROS_WARN("Error: x: %f, y: %f. Transform: < x: %f, y: %f ,z: %f>", projected_x - (pixels[i])[0], projected_y - (pixels[i])[1]
+             , point[0], point[1], point[2]);
+    }
     acc_x+= std::fabs(projected_x - (pixels[i])[0]);
     acc_y+= std::fabs(projected_y - (pixels[i])[1]);
   }

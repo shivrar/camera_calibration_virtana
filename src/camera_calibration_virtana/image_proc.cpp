@@ -61,7 +61,7 @@ namespace camera_calibration_virtana{
 
 
 
-    bool patternfound = cv::findChessboardCorners(cv_ptr->image, cvSize(4,4), corners, cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_FAST_CHECK);
+    bool patternfound = cv::findChessboardCorners(cv_ptr->image, cvSize(7,6), corners, cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_FAST_CHECK);
 
     if(patternfound)
     {
@@ -88,8 +88,8 @@ namespace camera_calibration_virtana{
 
         float x,y,z;
         x = cube_dimensions_[0]/2.0;
-        y = -cube_dimensions_[1]*(0.5 - 0.2 - (i%4)*(0.2));
-        z = cube_dimensions_[2]*(0.5 - 0.2 - (i/4)*(0.2));
+        y = -cube_dimensions_[1]*(0.5 - 0.2 - (i%7)*(0.1));
+        z = cube_dimensions_[2]*(0.5 - 0.2 - (i/7)*(0.1));
 
         //TODO: For each match write the corresponding points (x,y) to transform(x,y,z) and repeat until the end of the calibration. NOTE THE TRANSFORM MUST BE IN THE IMAGE/CAMERA frame
 
@@ -107,7 +107,7 @@ namespace camera_calibration_virtana{
         //        ROS_INFO("Expected point (x:%f,y:%f), Actual point (x:%f,y:%f)", pixel_x, pixel_y, corners[i].x, corners[i].y);
 
         *fs_ << "{:";
-        *fs_ << "pixel"<< "{:" << "x" << (int)corners[i].x << "y" << (int)corners[i].y << "}";
+        *fs_ << "pixel"<< "{:" << "x" << (float)corners[i].x << "y" << (float)corners[i].y << "}";
         *fs_ << "transform" <<"{:" << "X" << (float)trans.getX() << "Y" << (float)trans.getY() << "Z"<< (float)trans.getZ()<< "}";
         *fs_ << "}";
 
@@ -118,12 +118,12 @@ namespace camera_calibration_virtana{
       *fs_ << "}";
 
 
-        //      cv::drawChessboardCorners(cv_ptr->image, cvSize(4,4), cv::Mat(corners), patternfound);
+              cv::drawChessboardCorners(cv_ptr->image, cvSize(7,6), cv::Mat(corners), patternfound);
 
     }
 
-      //    cv::imshow(OPENCV_WINDOW, cv_ptr->image);
-      //    cv::waitKey(3);
+          cv::imshow(OPENCV_WINDOW, cv_ptr->image);
+          cv::waitKey(3);
   };
 
 }

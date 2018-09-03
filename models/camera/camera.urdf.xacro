@@ -56,9 +56,9 @@
         <CxPrime>640</CxPrime>
         <Cx>640</Cx>
         <Cy>640</Cy>
-        <focalLength>762</focalLength>
-        <distortionK1>0.05</distortionK1>
-        <distortionK2>0.05</distortionK2>
+        <focalLength>762.724934</focalLength>
+        <distortionK1>0.00</distortionK1>
+        <distortionK2>0.00</distortionK2>
         <distortionK3>0.0</distortionK3>
         <distortionT1>0.0</distortionT1>
         <distortionT2>0.0</distortionT2>
