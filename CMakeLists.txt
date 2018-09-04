@@ -36,6 +36,7 @@ catkin_package(
 )
 
 add_executable(nlo_eg src/nlo_eg.cpp)
+add_executable(nlo_eg_cp src/nlo_camera_and_point.cpp)
 add_executable(world_transform_pub src/world_transform_pub.cpp)
 add_executable(image_proc_node src/image_proc_node.cpp)
 
@@ -49,6 +50,12 @@ add_library(camera_calibration_virtana
 
 
 target_link_libraries(nlo_eg
+   ${catkin_LIBRARIES}
+   ${CERES_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+)
+
+target_link_libraries(nlo_eg_cp
    ${catkin_LIBRARIES}
    ${CERES_LIBRARIES}
    ${OpenCV_LIBRARIES}
